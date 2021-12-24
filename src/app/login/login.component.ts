@@ -12,21 +12,7 @@ export class LoginComponent implements OnInit {
   email = '';
   password = '';
 
-  constructor(
-    private restApiService: RestapidataService,
-    private storeDataService: StoreDataService,
-    private router: Router
-  ) {}
-
-  login() {
-    let body = { email: this.email, password: this.password };
-
-    this.restApiService.post(body, 'login').subscribe((token) => {
-      if (token) {
-        this.storeDataService.storeToken(token);
-      }
-    });
-  }
+  constructor() {}
 
   ngOnInit(): void {}
 }
