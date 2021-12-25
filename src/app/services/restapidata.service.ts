@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {StoreDataService} from "./store-data.service";
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestapidataService {
-  userUrl: string = 'http://localhost:5000/api/users';
-  authUrl: string = 'http://localhost:5000/api/auth';
-  constructor(private http: HttpClient) {}
+  userUrl: string = '/api/users';
+  authUrl: string = '/api/auth';
+  constructor(private http: HttpClient, private tokenStore: StoreDataService) {}
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -15,19 +16,37 @@ export class RestapidataService {
     }),
   };
 
-  post(body: any, action: string) {
+  post(body: any, action: string): Promise<void| any> {
     if (action === 'register') {
-      return this.http.post(this.userUrl, body, this.httpOptions);
+      alert(body)
+      return this.http.post(this.userUrl, body, this.httpOptions)
+        .toPromise()
+        .then((response: any) => response)
+        .catch(this.error)
     } else {
-      return this.http.post(this.authUrl, body, this.httpOptions);
+      return this.http.post(this.authUrl, body, this.httpOptions)
+        .toPromise()
+        .then((response: any) => response)
+        .catch(this.error)
     }
   }
 
-  get() {
-    let token = localStorage.getItem('token_id');
-    if (token) {
-      this.httpOptions.headers.set('x-auth-token', token);
+  get(): Promise<void|any> {
+    this.tokenStore.loadToken()
+    if (this.tokenStore.authToken == "null" || this.tokenStore.authToken == null){
+      this.httpOptions.headers = this.httpOptions.headers.append('x-auth-token', this.tokenStore.authToken);
+    }else{
+      return new Promise(resolve => null);
     }
-    return this.http.get(this.authUrl);
+    return this.http.get(this.authUrl, this.httpOptions)
+      .toPromise()
+      .then((response: any) => response)
+      .catch(this.error)
+  }
+
+  private error (error: any) {
+    let message = (error.message) ? error.message :
+      error.status ? `${error.status} - ${error.statusText}` : 'Server error';
+    console.error(message);
   }
 }

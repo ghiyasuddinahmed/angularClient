@@ -20,8 +20,11 @@ export class StoreDataService {
   }
 
   loadToken() {
-    const token = localStorage.getItem('id_token');
-    this.authToken = token;
+    try{
+      this.authToken = localStorage.getItem('id_token');
+    }catch (e) {
+      console.log(e)
+    }
   }
 
   logout() {
