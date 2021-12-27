@@ -1,0 +1,23 @@
+<div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center">
+  <mat-card class="box">
+    <mat-card-header>
+      <mat-card-title>Update your Profile</mat-card-title>
+    </mat-card-header>
+
+    <form class="example-form" (submit)="update()">
+      <mat-card-content>
+        <mat-form-field class="example-full-width">
+          <input matInput required type="text" name="name" placeholder="Name" [(ngModel)]="data.name"/>
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+          <input matInput required type="email" name="email" placeholder="Email" [(ngModel)]="data.email"/>
+        </mat-form-field>
+      </mat-card-content>
+
+      <button mat-raised-button color="primary" type="submit" class="btn-block">
+        Update
+      </button>
+    </form>
+  </mat-card>
+</div>

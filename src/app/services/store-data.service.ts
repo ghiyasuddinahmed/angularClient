@@ -27,9 +27,20 @@ export class StoreDataService {
     }
   }
 
+  loadUser(){
+    try{
+      const user = localStorage.getItem('user')
+      console.log(user)
+      this.user = JSON.parse(user? user: '');
+    }catch (e) {
+      console.log(e)
+    }
+  }
+
   logout() {
     this.authToken = null;
     this.user = null;
     localStorage.clear();
+    window.location.href = "/"
   }
 }

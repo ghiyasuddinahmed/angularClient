@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RestapidataService } from '../services/restapidata.service';
 import { StoreDataService } from '../services/store-data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,7 +11,7 @@ import { StoreDataService } from '../services/store-data.service';
 
 export class LoginComponent implements OnInit {
   public data: { password: string; email: string };
-  constructor(private restapidataService : RestapidataService, private tokenStore: StoreDataService) {
+  constructor(private restapidataService : RestapidataService, private tokenStore: StoreDataService, private router: Router) {
     this.data = {
       email: "",
       password: ""
@@ -18,7 +19,20 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.tokenStore.loadToken();
+  }
+
+  loadUser(){
+    //get user from token
+    this.restapidataService
+      .get()
+      .then((user: any) => {
+        const creds = {"name": user.name, "email": user.email, "_id": user._id}
+        this.tokenStore.storeUser(JSON.stringify(creds))
+        console.log("User: ", user)
+        if (user){
+          this.router.navigateByUrl('/profile')
+        }
+      })
   }
 
   login(){
@@ -27,23 +41,18 @@ export class LoginComponent implements OnInit {
       const password = this.data.password
       this.restapidataService.post(JSON.stringify({email, password}), "login")
         .then((token: any) => {
-          if (token){
-            console.log("Token: ",token)
-            this.tokenStore.storeToken(token.token)
-            //get user from token
-            this.restapidataService.get()
-              .then((user: any) => {
-                console.log("User: ", user)
-              })
+          try{
+            if (token){
+              console.log("Token: ",token)
+              this.tokenStore.storeToken(token.token)
+              this.loadUser()
+            }
+          }catch(e){
+            alert("User does not exist, please try again with valid credentials.")
           }
         })
       return
     }
-    //get user from token
-    this.restapidataService
-      .get()
-      .then((user: any) => {
-        console.log("User: ", user)
-      })
+    this.loadUser()
   }
 }

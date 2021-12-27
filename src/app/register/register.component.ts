@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RestapidataService } from '../services/restapidata.service';
 import { StoreDataService } from '../services/store-data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -10,7 +11,7 @@ import { StoreDataService } from '../services/store-data.service';
 export class RegisterComponent implements OnInit {
   public data: { name: string; password: string; confirm_password: string; email: string };
 
-  constructor(private restApiDataService: RestapidataService, private tokenStore: StoreDataService) {
+  constructor(private restApiDataService: RestapidataService, private tokenStore: StoreDataService, private router: Router) {
     this.data = {
       name: "",
       email: "",
@@ -36,11 +37,18 @@ export class RegisterComponent implements OnInit {
       const name = this.data.name
       const email = this.data.email
       const password = this.data.password
-      alert(this.data.name+" "+this.data.email+" "+this.data.password)
       this.restApiDataService.post(JSON.stringify({name, email, password}), 'register')
         .then((result: any) => {
           if (result.token){
             this.tokenStore.storeToken(result.token)
+            this.restApiDataService
+              .get()
+              .then((user: any) => {
+                const creds = {"name": user.name, "email": user.email, "_id": user._id}
+                this.tokenStore.storeUser(JSON.stringify(creds))
+                const navigationDetails: string[] = ['/profile'];
+                this.router.navigate(navigationDetails)
+              })
           }
         })
     }
